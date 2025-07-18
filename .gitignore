@@ -1,0 +1,86 @@
+/PageObjectModelPW/obj/Debug/net9.0/.NETCoreApp,Version=v9.0.AssemblyAttributes.cs
+## .NET specific
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.user
+*.vscode
+*.vs
+*.suo
+*.cache
+*.log
+*.binlog
+*.tmp
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.dbmdl
+*.jfm
+*.pfx
+*.publishsettings
+project.lock.json
+.builds
+
+## MSTest test Results
+TestResults/
+[Bb]uild[Ll]og.*
+
+## NUnit
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+
+## Playwright specific
+playwright-report/
+test-results/
+playwright/.cache/
+**/playwright-report/
+**/test-results/
+**/.playwright/
+
+## Node.js (for Playwright install)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+## IDE - Visual Studio
+.vs/
+*.userprefs
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+_ReSharper*/
+*.[Pp]ublish.xml
+
+## IDE - Rider
+.idea/
+*.sln.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+
+## OS specific
+.DS_Store
+Thumbs.db
+[Dd]esktop.ini
+
+## Misc
+*.swp
+*~
+*.bak
+*.orig
+logs/
+.env
+.env.local
+coverage/
+
+## Specific to this project
+/PageObjectModelPW/obj/Debug/net9.0/.NETCoreApp,Version=v9.0.AssemblyAttributes.cs
