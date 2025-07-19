@@ -2,7 +2,7 @@ using Microsoft.Playwright;
 
 namespace PageObjectModelPW.Pages;
 
-public class HomePage(IPage page)
+public abstract class HomePage(IPage page)
 {
     // Locators
     private ILocator Banner => page.GetByRole(AriaRole.Banner);

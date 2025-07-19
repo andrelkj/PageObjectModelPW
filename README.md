@@ -1,7 +1,7 @@
 
 # Playwright with .NET - Page Object Model Reference Project
 
-This project serves as a comprehensive reference for implementing and practicing Playwright with .NET using the Page Object Model (POM) design pattern.
+This project serves as a comprehensive reference for implementing and practicing Playwright with .NET using the Page Object Model (POM) design pattern and Page Factory pattern.
 
 ## Project Overview
 
@@ -9,6 +9,7 @@ The project demonstrates automation testing of a car website (carwale.com) using
 - Playwright for .NET
 - NUnit test framework
 - Page Object Model design pattern
+- Page Factory pattern for efficient page object management
 - Modern C# features
 
 ## Getting Started
@@ -38,6 +39,9 @@ The project demonstrates automation testing of a car website (carwale.com) using
 
 ## Project Structure
 
+- **Core/**: Contains infrastructure classes
+  - `BaseTest.cs`: Base class with Playwright setup/teardown
+  - `PageFactory.cs`: Manages page object instantiation and caching
 - **Pages/**: Contains Page Object classes
   - `HomePage.cs`: Page object for the website's home page
 - **Testcases/**: Contains test classes
@@ -45,7 +49,43 @@ The project demonstrates automation testing of a car website (carwale.com) using
 
 ## Key Learnings
 
-### 1. Page Object Model Implementation
+### 1. Page Factory Pattern Implementation
+
+The Page Factory pattern provides a way to efficiently manage page objects:
+
+```csharp
+// Core/PageFactory.cs
+public class PageFactory(IPage page)
+{
+    // Caching mechanism
+    private readonly Dictionary<Type, object> _pages = new();
+
+    // Generic page creation
+    private T GetPage<T>() where T : class
+    {
+        var pageType = typeof(T);
+
+        if (!_pages.TryGetValue(pageType, out var page))
+        {
+            page = CreatePage<T>();
+            _pages[pageType] = page;
+        }
+
+        return (T)page;
+    }
+
+    // Convenience properties for common pages
+    public HomePage HomePage => GetPage<HomePage>();
+}
+```
+
+**Benefits of Page Factory:**
+- **Centralized page object management**: All page objects are created and managed in one place
+- **Lazy initialization**: Page objects are only created when needed
+- **Caching**: Page objects are reused rather than recreated for each test step
+- **Clean test code**: Tests focus on behavior rather than object creation
+
+### 2. Page Object Model Implementation
 
 ```csharp
 // Pages/HomePage.cs
@@ -70,21 +110,24 @@ public class HomePage(IPage page)
 - Improved test maintenance
 - Better readability
 
-### 2. Proper Test Structure
+### 3. Proper Test Structure
 
 ```csharp
-[Test]
-public async Task FindNewCar_ShouldNavigateToNewCarsPage()
+[TestFixture]
+public class FindNewCarTest : BaseTest // Inherit from BaseTest
 {
-    // Arrange
-    await _page!.GotoAsync("https://www.carwale.com/");
-    var homePage = new HomePage(_page);
+    [Test]
+    public async Task FindNewCar_ShouldNavigateToNewCarsPage()
+    {
+        // Arrange
+        await _page!.GotoAsync("https://www.carwale.com/");
 
-    // Act
-    await homePage.FindNewCars();
+        // Act - Using the PageFactory instead of direct instantiation
+        await Pages!.HomePage.FindNewCars();
 
-    // Assert
-    await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*new-cars.*"));
+        // Assert
+        await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*new-cars.*"));
+    }
 }
 ```
 
@@ -93,35 +136,50 @@ public async Task FindNewCar_ShouldNavigateToNewCarsPage()
 - Descriptive test names
 - Single responsibility per test
 
-### 3. Test Lifecycle Management
+### 4. Test Lifecycle Management with BaseTest
 
 ```csharp
-[OneTimeSetUp]
-public async Task OneTimeSetUp()
+public abstract class BaseTest
 {
-    _playwright = await Playwright.CreateAsync();
-    _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
-    {
-        Headless = Environment.GetEnvironmentVariable("HEADLESS") != "false"
-    });
-}
+    private IPlaywright? _playwright;
+    private IBrowser? _browser;
+    private IBrowserContext? _context;
+    private IPage? _page;
+    protected PageFactory? Pages;
 
-[SetUp]
-public async Task SetUp()
-{
-    _context = await _browser!.NewContextAsync(new BrowserNewContextOptions
+    [OneTimeSetUp]
+    public async Task OneTimeSetUp()
     {
-        ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
-    });
-    _page = await _context.NewPageAsync();
+        _playwright = await Playwright.CreateAsync();
+        _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = Environment.GetEnvironmentVariable("HEADLESS") != "false"
+        });
+    }
+
+    [SetUp]
+    public async Task SetUp()
+    {
+        _context = await _browser!.NewContextAsync(new BrowserNewContextOptions
+        {
+            ViewportSize = new ViewportSize { Width = 1920, Height = 1080 }
+        });
+        _page = await _context.NewPageAsync();
+
+        // Initialize the PageFactory with the current page
+        Pages = new PageFactory(_page);
+    }
+
+    // TearDown and OneTimeTearDown methods for cleanup
 }
 ```
 
-**Best Practices:**
-- Using `OneTimeSetUp` for browser initialization
-- Using `SetUp` for context and page creation
-- Proper resource management
-- Error handling in teardown methods
+**Benefits of BaseTest:**
+- **Inherit once, use everywhere**: All test classes just inherit from BaseTest
+- **Zero code duplication**: No need to duplicate setup/teardown in test classes
+- **Consistent test environment**: All tests use the same configuration
+- **Automatic PageFactory initialization**: Pages ready to use in all tests
+- **Proper resource management**: Centralized cleanup in teardown methods
 
 ### 4. Playwright Best Practices
 
@@ -164,7 +222,42 @@ dotnet test
 
 ## Advanced Features
 
-### 1. Assertions
+### 1. Page Factory Advanced Usage
+
+```csharp
+// Adding multiple page types
+public class PageFactory(IPage page)
+{
+    // ... existing code ...
+
+    // Add convenience properties for all your pages
+    public HomePage HomePage => GetPage<HomePage>();
+    public SearchResultsPage SearchResultsPage => GetPage<SearchResultsPage>();
+    public CarDetailsPage CarDetailsPage => GetPage<CarDetailsPage>();
+}
+
+// Using multiple pages in a test flow
+[Test]
+public async Task ComplexUserJourney()
+{
+    await _page!.GotoAsync("https://www.carwale.com/");
+
+    // Chain operations across different pages
+    await Pages!.HomePage.SearchCars();
+    await Pages!.SearchResultsPage.SelectFirstCar();
+    await Pages!.CarDetailsPage.ViewSpecifications();
+
+    // Assert final state
+    await Assertions.Expect(_page).ToHaveURLAsync(new Regex(".*specifications.*"));
+}
+```
+
+**Adding New Pages:**
+1. Create the page class with an `IPage` constructor parameter
+2. Add a convenience property to the `PageFactory` class
+3. Access it in tests via `Pages!.NewPageName`
+
+### 2. Assertions
 Playwright provides powerful assertion capabilities:
 
 ```csharp
@@ -192,22 +285,67 @@ NUnit supports parallel test execution, which works well with Playwright's isola
 
 ## Best Practices and Coding Standards
 
-1. **Naming Conventions**
+1. **Architecture**
+   - Inherit from `BaseTest` - never duplicate setup/teardown
+   - Use `Pages!.PageName` instead of `new PageName(_page)`
+   - Keep page objects focused on single responsibility
+
+2. **Naming Conventions**
    - Use `_underscorePrefix` for private fields
    - Descriptive method names for page actions
    - Descriptive test names following behavior
 
-2. **Code Organization**
+3. **Code Organization**
    - Separate page objects from test logic
    - Group related locators and methods
+   - Use PageFactory for all page access
 
-3. **Error Handling**
-   - Proper try-catch blocks in teardown methods
-   - Graceful resource disposal
+4. **Error Handling**
+   - BaseTest handles all resource disposal
+   - Graceful error handling in teardown methods
 
-4. **Configuration Management**
+5. **Configuration Management**
    - Environment variables for test configuration
-   - Flexible browser options
+   - Flexible browser options in BaseTest
+
+## Comparison: Before vs After
+
+### Before (Manual Instantiation)
+```csharp
+[TestFixture]
+public class FindNewCarTest
+{
+    private IPlaywright? _playwright;
+    private IBrowser? _browser;
+    private IBrowserContext? _context;
+    private IPage? _page;
+
+    [OneTimeSetUp] // Duplicate setup code
+    [SetUp]        // Duplicate setup code
+    [Test]
+    public async Task Test()
+    {
+        var homePage = new HomePage(_page); // Manual instantiation
+        await homePage.FindNewCars();
+    }
+    [TearDown]     // Duplicate teardown code
+    [OneTimeTearDown] // Duplicate teardown code
+}
+```
+
+### After (PageFactory + BaseTest)
+```csharp
+[TestFixture]
+public class FindNewCarTest : BaseTest // Just inherit!
+{
+    [Test]
+    public async Task Test()
+    {
+        await Pages!.HomePage.FindNewCars(); // Clean and simple!
+    }
+    // No setup/teardown needed!
+}
+```
 
 ## Resources
 
