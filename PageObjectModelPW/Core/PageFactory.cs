@@ -31,6 +31,7 @@ public class PageFactory(IPage page)
 
     // Convenience properties for common pages
     public HomePage HomePage => GetPage<HomePage>();
+    public NewCarsPage NewCarsPage => GetPage<NewCarsPage>();
 
     // Add more pages as needed:
     // public SearchResultsPage SearchResultsPage => GetPage<SearchResultsPage>();

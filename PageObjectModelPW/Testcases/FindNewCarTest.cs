@@ -12,11 +12,12 @@ public class FindNewCarTest : BaseTest
         // Arrange
         await Page!.GotoAsync("https://www.carwale.com/");
 
-        // Act - Using the PageFactory instead of direct instantiation
+        // Act - Using the PageFactory
         await Pages!.HomePage.FindNewCars();
+        await Pages!.NewCarsPage.GoToToyota();
 
         // Assert
-        await Assertions.Expect(Page).ToHaveURLAsync(new Regex(".*new-cars.*"));
+        await Assertions.Expect(Page).ToHaveURLAsync(new Regex(".*toyota-cars.*"));
     }
 
     [Test]
