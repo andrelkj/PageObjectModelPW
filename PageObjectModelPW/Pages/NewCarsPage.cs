@@ -1,11 +1,12 @@
 using Microsoft.Playwright;
+using PageObjectModelPW.Core;
 
 namespace PageObjectModelPW.Pages;
 
-public class NewCarsPage(IPage page)
+public class NewCarsPage(IPage page) : BasePage(page)
 {
     // Locators
-    private ILocator AllBrandList => page.GetByRole(AriaRole.List);
+    private ILocator AllBrandList => Page.GetByRole(AriaRole.List);
 
     private ILocator ToyotaLink =>
         AllBrandList.GetByRole(AriaRole.Link, new LocatorGetByRoleOptions { Name = "Toyota" });
@@ -15,23 +16,27 @@ public class NewCarsPage(IPage page)
     private ILocator MgLink => AllBrandList.GetByRole(AriaRole.Link, new LocatorGetByRoleOptions { Name = "MG" });
 
     // Methods
-    public async Task GoToToyota()
+    public async Task<ToyotaCarsPage> GoToToyota()
     {
         await ToyotaLink.ClickAsync();
+        return new ToyotaCarsPage(Page);
     }
 
-    public async Task GoToBmw()
+    public async Task<BmwCarsPage> GoToBmw()
     {
         await BmwLink.ClickAsync();
+        return new BmwCarsPage(Page);
     }
 
-    public async Task GoToHonda()
+    public async Task<HondaCarsPage> GoToHonda()
     {
         await HondaLink.ClickAsync();
+        return new HondaCarsPage(Page);
     }
 
-    public async Task GoToMg()
+    public async Task<MgCarsPage> GoToMg()
     {
         await MgLink.ClickAsync();
+        return new MgCarsPage(Page);
     }
 }

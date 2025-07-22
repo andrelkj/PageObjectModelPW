@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using PageObjectModelPW.Core;
+using PageObjectModelPW.Pages;
 
 namespace PageObjectModelPW.Testcases;
 
@@ -10,11 +11,12 @@ public class FindNewCarTest : BaseTest
     public async Task FindNewCar_ShouldNavigateToNewCarsPage()
     {
         // Arrange
-        await Page!.GotoAsync("https://www.carwale.com/");
+        await Page.GotoAsync("https://www.carwale.com/");
 
         // Act - Using the PageFactory
-        await Pages!.HomePage.FindNewCars();
-        await Pages!.NewCarsPage.GoToToyota();
+        HomePage homePage = new HomePage(Page);
+        NewCarsPage newCarsPage = await homePage.FindNewCars();
+        await newCarsPage.GoToToyota();
 
         // Assert
         await Assertions.Expect(Page).ToHaveURLAsync(new Regex(".*toyota-cars.*"));
@@ -27,7 +29,8 @@ public class FindNewCarTest : BaseTest
         await Page!.GotoAsync("https://www.carwale.com/");
 
         // Act - Using the PageFactory
-        await Pages!.HomePage.SearchCars();
+        HomePage homePage = new HomePage(Page);
+        await homePage.SearchCars();
 
         // Assert
         await Assertions.Expect(Page).ToHaveURLAsync(new Regex(".*search.*"));
