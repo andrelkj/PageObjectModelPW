@@ -18,7 +18,7 @@ public class HomePage(IPage page) : BasePage(page)
         await NewCarsLink.HoverAsync();
         await FindNewCarsLink.ClickAsync();
 
-        return new NewCarsPage(page);
+        return new NewCarsPage(Page);
     }
 
     public async Task SearchCars()

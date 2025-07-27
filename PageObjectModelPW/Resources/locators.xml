@@ -1,0 +1,27 @@
+﻿<locators>
+
+
+	<HomePage>
+		<newcars>//div[normalize-space()='NEW CARS']</newcars>
+		<findnewcars>(//div[normalize-space()='Find New Cars'])[1]</findnewcars>
+	</HomePage>
+
+
+	<NewCarsPage>
+		<toyotacar>//div[normalize-space()='Toyota']</toyotacar>
+		<bmwcar>//div[normalize-space()='BMW']</bmwcar>
+		<hondacar>//div[normalize-space()='Honda']</hondacar>
+		<mgcar>//div[normalize-space()='MG']</mgcar>
+	</NewCarsPage>
+
+
+
+	<CarBase>
+		<cartitle>//header/h1</cartitle>
+		
+	</CarBase>
+
+
+
+
+</locators>

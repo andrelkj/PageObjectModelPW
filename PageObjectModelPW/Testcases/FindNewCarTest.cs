@@ -14,8 +14,8 @@ public class FindNewCarTest : BaseTest
         await Page.GotoAsync("https://www.carwale.com/");
 
         // Act - Using the PageFactory
-        HomePage homePage = new HomePage(Page);
-        NewCarsPage newCarsPage = await homePage.FindNewCars();
+        var homePage = new HomePage(Page);
+        var newCarsPage = await homePage.FindNewCars();
         await newCarsPage.GoToToyota();
 
         // Assert
@@ -29,7 +29,7 @@ public class FindNewCarTest : BaseTest
         await Page!.GotoAsync("https://www.carwale.com/");
 
         // Act - Using the PageFactory
-        HomePage homePage = new HomePage(Page);
+        var homePage = new HomePage(Page);
         await homePage.SearchCars();
 
         // Assert
