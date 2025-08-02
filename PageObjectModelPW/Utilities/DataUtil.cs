@@ -11,6 +11,7 @@ namespace PageObjectModelPW.Utilities
             var testData = new List<TestCaseData>();
 
             // Load Excel file
+            ExcelPackage.License.SetNonCommercialPersonal("André Kreutzer");
             using (var package = new ExcelPackage(new FileInfo(filePath)))
             {
                 var worksheet = package.Workbook.Worksheets[sheetName];

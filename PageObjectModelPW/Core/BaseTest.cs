@@ -85,7 +85,7 @@ public abstract class BaseTest
         _playwright = await Playwright.CreateAsync();
     }
 
-    private static async Task CaptureScreenshot(IPage page)
+    protected static async Task CaptureScreenshot(IPage page)
     {
         DateTime currentTime = DateTime.Now;
         _fileName = currentTime.ToString("yyyy-MM-dd_HH-mm-ss") + ".jpg";
@@ -110,7 +110,6 @@ public abstract class BaseTest
             {
                 case TestStatus.Passed:
                     ExtentTest.Pass("Test Passed");
-
                     IMarkup markup = MarkupHelper.CreateLabel("PASS", ExtentColor.Green);
                     ExtentTest.Pass(markup);
                     break;
@@ -123,7 +122,10 @@ public abstract class BaseTest
 
                 case TestStatus.Failed:
                     ExtentTest.Fail($"Test Failed: {message}");
-                    await CaptureScreenshot(Page);
+                    ExtentTest.Fail("<b><font color=red>Screenshot of failure</font></b><br>",
+                        MediaEntityBuilder.CreateScreenCaptureFromPath(
+                                $"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/Reports/{_fileName}")
+                            .Build());
                     markup = MarkupHelper.CreateLabel("FAIL", ExtentColor.Red);
                     ExtentTest.Fail(markup);
                     break;
@@ -144,7 +146,8 @@ public abstract class BaseTest
         }
     }
 
-    protected async Task<(IBrowser _browser, IPage Page)> CreateBrowserAndPage(IPlaywright playwrightInstance, string browserType,
+    protected async Task<(IBrowser _browser, IPage Page)> CreateBrowserAndPage(IPlaywright playwrightInstance,
+        string browserType,
         BrowserTypeLaunchOptions? launchOptions = null)
     {
         if (browserType.Equals("chrome", StringComparison.OrdinalIgnoreCase))
