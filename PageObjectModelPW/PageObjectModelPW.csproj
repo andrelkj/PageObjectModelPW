@@ -37,4 +37,9 @@
         <Using Include="System.Threading.Tasks"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Reports\" />
+      <Folder Include="Screenshot\" />
+    </ItemGroup>
+
 </Project>

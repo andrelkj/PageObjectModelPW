@@ -5,4 +5,5 @@ namespace PageObjectModelPW.Pages;
 
 public class BmwCarsPage(IPage page) : BasePage(page)
 {
+    
 }

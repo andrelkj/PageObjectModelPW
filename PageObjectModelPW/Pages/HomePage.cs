@@ -15,8 +15,10 @@ public class HomePage(IPage page) : BasePage(page)
     // Methods
     public async Task<NewCarsPage> FindNewCars()
     {
-        await NewCarsLink.HoverAsync();
-        await FindNewCarsLink.ClickAsync();
+        // await NewCarsLink.HoverAsync();
+        // await FindNewCarsLink.ClickAsync();
+        await MouseOver("HomePage", "newcars");
+        await Click("HomePage", "findnewcars");
 
         return new NewCarsPage(Page);
     }
