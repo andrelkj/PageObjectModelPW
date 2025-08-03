@@ -6,7 +6,10 @@ namespace PageObjectModelPW.Core;
 public abstract class BasePage(IPage page)
 {
     protected readonly IPage Page = page;
-    
+
+    private ILocator CarName => Page.Locator("//div/div/div/div/a/h3");
+    private ILocator CarPrice => Page.Locator("//div/div/div[3]/div/span/span[1]");
+
     public async Task<string> GetCarTitle()
     {
         var title = await GetText("CarBase", "cartitle");
@@ -14,7 +17,20 @@ public abstract class BasePage(IPage page)
         return title;
         // return await Page.GetByRole(AriaRole.Heading, new PageGetByRoleOptions { Level = 1 }).InnerTextAsync();
     }
-    
+
+    public async Task GetCarNameAndPrices()
+    {
+        await Task.Delay(2000);
+        
+        var carCountAsync = await CarPrice.CountAsync();
+        for (var i = 0; i < carCountAsync; i++)
+        {
+            Console.WriteLine($"Car name: {await CarName.Nth(i).InnerTextAsync()}");
+            Console.WriteLine($"Price: {await CarPrice.Nth(i).InnerTextAsync()}");
+            Console.WriteLine("-----------------------------------------");
+        }
+    }
+
     public async Task Click(string pageName, string locatorName)
     {
         BaseTest.ExtentTest.Info($"Clicking on an Element: {locatorName}");
